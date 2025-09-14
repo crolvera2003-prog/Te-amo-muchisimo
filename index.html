@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para mi amor, [nombre de tu novia]</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@1,500&display=swap');
+
+        body {
+            font-family: 'Playfair Display', serif;
+            color: #4a148c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+            background-color: #fce4ec;
+            background-image: url('https://images.unsplash.com/photo-1549488344-933e141a0279?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-size: cover;
+            background-position: center;
+            animation: fadeInBackground 2s forwards;
+        }
+
+        @keyframes fadeInBackground {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .container {
+            text-align: center;
+            padding: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ffccdd;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            max-width: 650px;
+            width: 90%;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            color: #d81b60;
+            font-size: 3.5em;
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        p {
+            font-size: 1.5em;
+            line-height: 1.7;
+            font-style: italic;
+            margin: 0 0 25px 0;
+            color: #6a1b9a;
+        }
+
+        .highlight {
+            color: #d81b60;
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        .interactive-area {
+            cursor: pointer;
+        }
+
+        .hidden-message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #880e4f;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        
+        .visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .heart-animation {
+            position: absolute;
+            font-size: 3em;
+            color: #d81b60;
+            z-index: 20;
+            animation: pulse 1s ease-out forwards;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+    <audio id="background-music" src="/static/young_and_beautiful.mp3" autoplay loop></audio>
+
+    <div class="container interactive-area" onclick="showInteractiveMessage(event)">
+        <h1>Mi amor,</h1>
+        <p>Sé que hemos tenido momentos difíciles, pero cada conflicto me recuerda lo valioso que es nuestro amor. Tú eres lo mejor que me ha pasado, mi refugio, y la única persona con la que quiero enfrentar cualquier tormenta.</p>
+        <p>Lamento profundamente si mis palabras o acciones te han lastimado. Por favor, perdóname por el dolor que te he causado.</p>
+        <p>Eres <span class="highlight">mi otra mitad, mi paz y mi alegría.</span> Quiero que nuestra historia continúe, llena de risas, de amor incondicional y de un futuro juntos.</p>
+        <div id="secret-message" class="hidden-message">
+            Eres la mejor parte de mí, y siempre lo serás. Te amo con todo mi corazón.
+        </div>
+    </div>
+
+    <script>
+        const container = document.querySelector('.interactive-area');
+        const secretMessage = document.getElementById('secret-message');
+        
+        function showInteractiveMessage(event) {
+            secretMessage.classList.add('visible');
+            createHeart(event);
+        }
+
+        function createHeart(event) {
+            const heart = document.createElement('div');
+            heart.classList.add('heart-animation');
+            heart.innerHTML = '❤️';
+            heart.style.left = event.clientX + 'px';
+            heart.style.top = event.clientY + 'px';
+            document.body.appendChild(heart);
+            
+            setTimeout(() => {
+                heart.remove();
+            }, 1000);
+        }
+        
+        window.addEventListener('load', () => {
+            const audio = document.getElementById('background-music');
+            audio.volume = 0.5; // Ajusta el volumen para que no sea muy fuerte
+            audio.play().catch(error => {
+                console.log("La reproducción automática falló. El usuario deberá interactuar para que suene la música.");
+            });
+        });
+    </script>
+</body>
+</html>
