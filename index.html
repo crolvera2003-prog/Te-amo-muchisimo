@@ -1,148 +1,383 @@
-<!DOCTYPE html>
+import webbrowser
+import os
+
+html_content = """<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para mi amor, [nombre de tu novia]</title>
+    <title>Para Mi Amor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@1,500&display=swap');
-
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: 'Playfair Display', serif;
-            color: #4a148c;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            position: relative;
+            background: linear-gradient(135deg, #ffafbd, #ffc3a0);
             overflow: hidden;
-            background-color: #fce4ec;
-            background-image: url('https://images.unsplash.com/photo-1549488344-933e141a0279?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
-            background-size: cover;
-            background-position: center;
-            animation: fadeInBackground 2s forwards;
+            font-family: 'Playfair Display', serif;
+            position: relative;
+            color: #5D4037;
         }
-
-        @keyframes fadeInBackground {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.05);
+            z-index: 0;
         }
-
+        
         .container {
             text-align: center;
             padding: 50px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid #ffccdd;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-            max-width: 650px;
-            width: 90%;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            z-index: 100;
             position: relative;
-            z-index: 10;
-        }
-
-        h1 {
-            font-family: 'Dancing Script', cursive;
-            color: #d81b60;
-            font-size: 3.5em;
-            margin-bottom: 25px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
-
-        p {
-            font-size: 1.5em;
-            line-height: 1.7;
-            font-style: italic;
-            margin: 0 0 25px 0;
-            color: #6a1b9a;
-        }
-
-        .highlight {
-            color: #d81b60;
-            font-weight: bold;
-            font-style: normal;
-        }
-
-        .interactive-area {
-            cursor: pointer;
-        }
-
-        .hidden-message {
-            margin-top: 20px;
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #880e4f;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            margin: 20px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
-        .visible {
-            opacity: 1;
-            transform: scale(1);
+        h1 {
+            color: #D32F2F;
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
-
-        .heart-animation {
+        
+        .message {
+            color: #5D4037;
+            font-size: 1.8rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .apology {
+            background: rgba(255, 182, 193, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 5px solid #FF4081;
+        }
+        
+        .promise {
+            font-style: italic;
+            margin-top: 25px;
+            color: #7B1FA2;
+            font-weight: bold;
+        }
+        
+        .signature {
+            margin-top: 40px;
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            color: #D32F2F;
+        }
+        
+        .heart {
             position: absolute;
-            font-size: 3em;
-            color: #d81b60;
-            z-index: 20;
-            animation: pulse 1s ease-out forwards;
+            width: 40px;
+            height: 40px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ff4081' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") no-repeat center/contain;
+            pointer-events: none;
+            z-index: 1;
+            animation: fall 8s linear infinite, pulse 1.5s infinite;
+        }
+        
+        @keyframes fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 0.8; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
         }
         
         @keyframes pulse {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); opacity: 0; }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
         }
-
+        
+        .rose {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23e91e63' d='M12.7 6.8c-.2-.2-.5-.2-.7 0-.9-.9-2-1.4-3.3-1.4-1.3 0-2.4.5-3.3 1.4-.2.2-.5.2-.7 0-.2-.2-.2-.5 0-.7C5.5 4.9 6.9 4.3 8.7 4.3c1.8 0 3.2.6 4.1 1.8.1.2.1.5-.1.7zm10.1 5.1c-.3-.8-.7-1.5-1.2-2.1-.5-.6-1.1-1-1.8-1.3-.7-.3-1.5-.5-2.3-.5-.8 0-1.6.2-2.3.5-.7.3-1.3.7-1.8 1.3-.5.6-.9 1.3-1.2 2.1-.3.8-.4 1.6-.4 2.5 0 .9.1 1.7.4 2.5.3.8.7 1.5 1.2 2.1.5.6 1.1 1 1.8 1.3.7.3 1.5.5 2.3.5.8 0 1.6-.2 2.3-.5.7-.3 1.3-.7 1.8-1.3.5-.6.9-1.3 1.2-2.1.3-.8.4-1.6.4-2.5 0-.9-.1-1.7-.4-2.5zm-9.7 4.4c0-.9.2-1.7.5-2.5.3-.8.7-1.5 1.2-2.1.5-.6 1.1-1 1.8-1.3.7-.3 1.5-.5 2.3-.5.8 0 1.6.2 2.3.5.7.3 1.3.7 1.8 1.3.5.6.9 1.3 1.2 2.1.3.8.4 1.6.4 2.5 0 .9-.1 1.7-.4 2.5-.3.8-.7 1.5-1.2 2.1-.5.6-1.1 1-1.8 1.3-.7.3-1.5.5-2.3.5-.8 0-1.6-.2-2.3-.5-.7-.3-1.3-.7-1.8-1.3-.5-.6-.9-1.3-1.2-2.1-.3-.8-.5-1.6-.5-2.5z'/%3E%3C/svg%3E") no-repeat center/contain;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.5;
+        }
+        
+        .rose:nth-child(1) { top: 10%; left: 5%; animation: float 8s ease-in-out infinite; }
+        .rose:nth-child(2) { top: 20%; right: 15%; animation: float 10s ease-in-out infinite; }
+        .rose:nth-child(3) { bottom: 15%; left: 20%; animation: float 9s ease-in-out infinite; }
+        .rose:nth-child(4) { bottom: 5%; right: 10%; animation: float 7s ease-in-out infinite; }
+        .rose:nth-child(5) { top: 30%; left: 15%; animation: float 11s ease-in-out infinite; }
+        .rose:nth-child(6) { bottom: 25%; right: 5%; animation: float 6s ease-in-out infinite; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        .music-btn {
+            margin-top: 30px;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #FF4081, #7B1FA2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
+        }
+        
+        .music-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(123, 31, 162, 0.6);
+        }
+        
+        .music-controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .control-btn {
+            padding: 10px 20px;
+            background: rgba(123, 31, 162, 0.7);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            background: rgba(123, 31, 162, 1);
+        }
+        
+        .photo-album {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 15px;
+        }
+        
+        .photo-placeholder {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 182, 193, 0.3);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .photo-placeholder:hover {
+            transform: scale(1.1);
+            background: rgba(255, 182, 193, 0.5);
+        }
+        
+        .love-note {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            border: 1px dashed #FF4081;
+            cursor: pointer;
+        }
+        
+        .hidden-message {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 182, 193, 0.2);
+            border-radius: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px;
+                margin: 15px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .message {
+                font-size: 1.4rem;
+            }
+        }
     </style>
 </head>
 <body>
-<audio id="background-music" src="static/joven_y_hermosa.mp3" autoplay loop></audio>
-
-    <div class="container interactive-area" onclick="showInteractiveMessage(event)">
-        <h1>Mi amor,</h1>
-        <p>Sé que hemos tenido momentos difíciles, pero cada conflicto me recuerda lo valioso que es nuestro amor. Tú eres lo mejor que me ha pasado, mi refugio, y la única persona con la que quiero enfrentar cualquier tormenta.</p>
-        <p>Lamento profundamente si mis palabras o acciones te han lastimado. Por favor, perdóname por el dolor que te he causado.</p>
-        <p>Eres <span class="highlight">mi otra mitad, mi paz y mi alegría.</span> Quiero que nuestra historia continúe, llena de risas, de amor incondicional y de un futuro juntos.</p>
+    <div class="overlay"></div>
+    
+    <div class="container">
+        <h1>Para Mi Amor</h1>
+        
+        <div class="message">
+            Aunque a veces nuestras diferencias nublen el camino, quiero que sepas que eres la persona más importante en mi vida.
+        </div>
+        
+        <div class="apology">
+            Lamento profundamente si mis acciones o palabras te han lastimado. Cada discusión me duele porque te amo más de lo que las palabras pueden expresar.
+        </div>
+        
+        <div class="message">
+            Eres mi refugio, mi inspiración y la razón por la que quiero ser mejor cada día. A tu lado he encontrado un amor que trasciende cualquier dificultad.
+        </div>
+        
+        <div class="promise">
+            Prometo trabajar cada día para ser la persona que te mereces, con más paciencia, comprensión y amor incondicional.
+        </div>
+        
+        <div class="signature">Con todo mi amor</div>
+        
+        <button class="music-btn" onclick="playMusic()">🎵 Reproducir "Young and Beautiful" de Lana Del Rey</button>
+        
+        <div class="music-controls">
+            <button class="control-btn" onclick="pauseMusic()">⏸️ Pausar</button>
+            <button class="control-btn" onclick="resumeMusic()">▶️ Continuar</button>
+            <button class="control-btn" onclick="nextSong()">⏭️ Siguiente</button>
+        </div>
+        
+        <div class="photo-album">
+            <div class="photo-placeholder" onclick="showMessage(1)">📸 1</div>
+            <div class="photo-placeholder" onclick="showMessage(2)">📸 2</div>
+            <div class="photo-placeholder" onclick="showMessage(3)">📸 3</div>
+        </div>
+        
+        <div class="love-note" onclick="revealSecret()">
+            💌 Haz clic aquí para leer mi promesa secreta
+        </div>
         <div id="secret-message" class="hidden-message">
-            Eres la mejor parte de mí, y siempre lo serás. Te amo con todo mi corazón.
+            Prometo amarte en cada una de tus versiones, en tus días soleados y en tus tormentas. Eres mi persona favorita.
         </div>
     </div>
-
+    
+    <div class="rose"></div>
+    <div class="rose"></div>
+    <div class="rose"></div>
+    <div class="rose"></div>
+    <div class="rose"></div>
+    <div class="rose"></div>
+    
+    <audio id="background-music" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2021/10/25/audio_172d7dec90.mp3?filename=soft-sad-piano-123456.mp3" type="audio/mpeg">
+    </audio>
+    
     <script>
-        const container = document.querySelector('.interactive-area');
-        const secretMessage = document.getElementById('secret-message');
+        // Variables para control de música
+        const music = document.getElementById('background-music');
+        const songs = [
+            'https://cdn.pixabay.com/download/audio/2021/10/25/audio_172d7dec90.mp3?filename=soft-sad-piano-123456.mp3',
+            'https://cdn.pixabay.com/download/audio/2022/03/15/audio_0e6b12e830.mp3?filename=emotional-piano-123571.mp3',
+            'https://cdn.pixabay.com/download/audio/2022/05/27/audio_5b42a64d2c.mp3?filename=romantic-background-music-144395.mp3'
+        ];
+        let currentSong = 0;
         
-        function showInteractiveMessage(event) {
-            secretMessage.classList.add('visible');
-            createHeart(event);
-        }
-
-        function createHeart(event) {
+        // Crear corazones animados
+        function createHeart() {
             const heart = document.createElement('div');
-            heart.classList.add('heart-animation');
-            heart.innerHTML = '❤️';
-            heart.style.left = event.clientX + 'px';
-            heart.style.top = event.clientY + 'px';
+            heart.classList.add('heart');
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 5 + 4) + 's';
             document.body.appendChild(heart);
             
             setTimeout(() => {
                 heart.remove();
-            }, 1000);
+            }, 9000);
         }
         
-        window.addEventListener('load', () => {
-            const audio = document.getElementById('background-music');
-            audio.volume = 0.5; // Ajusta el volumen para que no sea muy fuerte
-            audio.play().catch(error => {
-                console.log("La reproducción automática falló. El usuario deberá interactuar para que suene la música.");
-            });
+        setInterval(createHeart, 400);
+        
+        for (let i = 0; i < 25; i++) {
+            setTimeout(createHeart, i * 300);
+        }
+        
+        // Funciones para control de música
+        function playMusic() {
+            music.play();
+            document.querySelector('.music-btn').textContent = "🎵 'Young and Beautiful' sonando";
+            alert("🎶 'Young and Beautiful' de Lana Del Rey está sonando. Esta canción me recuerda a ti.");
+        }
+        
+        function pauseMusic() {
+            music.pause();
+            alert("Música pausada. Pero mi amor por ti nunca se pausa ❤️");
+        }
+        
+        function resumeMusic() {
+            music.play();
+            alert("La música continúa, como mi amor por ti 🎵");
+        }
+        
+        function nextSong() {
+            currentSong = (currentSong + 1) % songs.length;
+            music.src = songs[currentSong];
+            music.play();
+            alert("Cambiando a otra canción romántica para ti 💖");
+        }
+        
+        // Funciones interactivas
+        function showMessage(photoNum) {
+            const messages = [
+                "Recuerdo esta foto como si fuera ayer. Ese día supe que eras la persona con la que quería envejecer.",
+                "En esta foto puedes ver lo feliz que soy a tu lado. Eres mi sonrisa favorita.",
+                "Este momento capturado es un tesoro para mí. Cada instante contigo es un regalo."
+            ];
+            alert(messages[photoNum - 1]);
+        }
+        
+        function revealSecret() {
+            const secretMessage = document.getElementById('secret-message');
+            if (secretMessage.style.display === 'block') {
+                secretMessage.style.display = 'none';
+            } else {
+                secretMessage.style.display = 'block';
+            }
+        }
+        
+        // Efectos de teclado
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowUp') {
+                createHeart();
+            }
         });
+        
+        // Mensaje inicial
+        window.onload = function() {
+            setTimeout(function() {
+                alert("Bienvenida, mi amor. Esta página es solo para ti, con todo mi corazón.");
+            }, 1000);
+        };
     </script>
 </body>
+</html>"""
 
-</html>
+archivo = 'para_mi_amor.html'
+with open(archivo, 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+webbrowser.open('file://' + os.path.realpath(archivo))
+
 
